@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+{% block body %}
+  <h2>Login</h2>
+  {% if form.errors %}
+    {% for error in form.errors %}
+       <dd>{{ error }}</dd>
+    {% endfor %} <br />
+  {% endif %}    
+  <form action="{{ url_for('check_login') }}" method=post>
+    {{ form.hidden_tag() }}
+    <dl>
+      <dt>{{ form.username.label }}</dt>
+      <dd>{{ form.username }}</dd>
+        {% if form.username.errors %}
+            {% for error in form.username.errors %}
+                <dd class="error">{{ error }}</dd>
+            {% endfor %}
+        {% endif %}
+      <dt>{{ form.password.label }}</dt>
+      <dd>{{ form.password }}</dd>
+        {% if form.password.errors %}
+            {% for error in form.password.errors %}
+                <dd class="error">{{ error }}</dd>
+            {% endfor %}
+        {% endif %}
+      <dt>{{ form.submit }}</dt>
+    </dl>
+  </form>
+{% endblock %}

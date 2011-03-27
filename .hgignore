@@ -1,0 +1,17 @@
+syntax: glob
+.project
+.pydevproject
+.settings_local
+*~
+*.csv
+*.orig
+*.mo
+*.pyc
+*.pyo
+*.swp
+*.tmp
+_generated_media*
+desktop.ini
+settings_overrides.py
+nbproject
+
