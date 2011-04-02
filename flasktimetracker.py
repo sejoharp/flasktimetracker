@@ -36,18 +36,23 @@ def favicon():
 
 @app.route('/login')
 def login():
-    return render_template('login.html', form=LoginForm())
+        return render_template('login.html', form=LoginForm())
+
+@app.route('/logout')
+def logout():
+    flash("logged out successfully.")
+    return redirect(url_for('login'))
 
 @app.route('/checkLogin',  methods=['POST'])
 def check_login():
-    form = LoginForm(request.form)
-    if form.validate_on_submit() and form.name.data == "admin" and form.password.data =="geheim":   
+    form = LoginForm(request.form)    
+    if form.validate_on_submit() and form.username.data == "admin" and form.password.data =="geheim":   
         session["id"] = 1
-        flash("login successfully.")
+        flash("logged in successfully.")
         return redirect(url_for('hello_world'))
     else:
         flash("user/pw invalid.")
-        return redirect(url_for('show_login'))
+        return render_template('login.html', form=form)
     
 @app.route('/')
 @requires_auth

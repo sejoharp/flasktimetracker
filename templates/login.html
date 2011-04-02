@@ -11,19 +11,11 @@
     <dl>
       <dt>{{ form.username.label }}</dt>
       <dd>{{ form.username }}</dd>
-        {% if form.username.errors %}
-            {% for error in form.username.errors %}
-                <dd class="error">{{ error }}</dd>
-            {% endfor %}
-        {% endif %}
+            {% for error in form.errors.username %}<dd>{{ error }}</dd>{% endfor %}   
       <dt>{{ form.password.label }}</dt>
       <dd>{{ form.password }}</dd>
-        {% if form.password.errors %}
-            {% for error in form.password.errors %}
-                <dd class="error">{{ error }}</dd>
-            {% endfor %}
-        {% endif %}
-      <dt>{{ form.submit }}</dt>
+            {% for error in form.password.errors %}<dd>{{ error }}</dd>{% endfor %}
+      <dt><dd><input type="submit" value="Login" /></dd>
     </dl>
   </form>
 {% endblock %}
