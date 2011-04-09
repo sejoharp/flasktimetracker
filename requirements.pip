@@ -2,5 +2,5 @@ Flask
 Flask-Script
 Flask-Testing
 Flask-WTF
+-e hg+https://bitbucket.org/danjac/flask-mongoengine#egg=Flask-Mongoengine
 mongoengine
-
