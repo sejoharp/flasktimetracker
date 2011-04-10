@@ -1,14 +1,16 @@
 import unittest
 import flasktimetracker
-from flasktimetracker import Interval, User
+from flasktimetracker import Interval, User, login
 from datetime import datetime, timedelta
-from flask import Flask
+from flask import Flask, session
 from werkzeug import generate_password_hash, check_password_hash
 
 class FlaskTimeTrackerTestCase(unittest.TestCase):
     
     def setUp(self):
         self.appClient = flasktimetracker.app.test_client()
+        self.flush_db()
+        self.set_initial_data()
 
     def assert200(self, status_code):
         self.assertEqual(status_code, 200)
@@ -44,9 +46,7 @@ class FlaskTimeTrackerTestCase(unittest.TestCase):
         admin.save()
         
     def test_initial_data(self):
-        self.flush_db()
-        self.set_initial_data()
-        
+        User.objects().all().count()
         user = User.objects().first()
         self.assertEqual(user.username, "admin")
         self.assertTrue(check_password_hash(user.pw_hash, "geheim"))
@@ -68,7 +68,13 @@ class FlaskTimeTrackerTestCase(unittest.TestCase):
     def test_login_valid_user_pw(self):
         response = self.login("admin","geheim")
         self.assertTrue('logged in successfully.' in response.data, response.data)
-        
+
+    def test_login_logout(self):
+        response = self.login("admin","geheim")
+        self.assertTrue('logged in successfully.' in response.data, response.data)
+        response = self.logout()
+        self.assertTrue('logged out successfully.' in response.data, response.data)
+                       
     def test_login_invalid_user(self):       
         response = self.login("admin" + 'x',"geheim")
         self.assertTrue('user/pw invalid.' in response.data, response.data)

@@ -43,7 +43,7 @@ class LoginForm(Form):
 def requires_auth(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        if not "id" in session:
+        if "userid" not in session:
             flash("login required.")
             return redirect(url_for('login'))
         else:
@@ -63,21 +63,30 @@ def login():
 
 @app.route('/logout')
 def logout():
-    session.pop("id", None)
+    session.pop("userid", None)
     flash("logged out successfully.")
     return redirect(url_for('login'))
 
 @app.route('/checkLogin',  methods=['POST'])
 def check_login():
-    form = LoginForm(request.form)    
-    if form.validate_on_submit() and form.username.data == "admin" and form.password.data =="geheim":   
-        session["id"] = 1
+    form = LoginForm(request.form) 
+    if form.validate_on_submit():
+        user = User.objects(username = form.username.data).first()
+        if user is not None and user.is_correct_password(form.password.data):
+            valid_login = True
+        else:
+            valid_login = False
+    else:
+        valid_login = False    
+      
+    if valid_login:
+        session["userid"] = user.id
         flash("logged in successfully.")
-        return redirect(url_for('hello_world'))
+        return redirect(url_for('hello_world'))        
     else:
         flash("user/pw invalid.")
         return render_template('login.html', form=form)
-    
+        
 @app.route('/')
 @requires_auth
 def hello_world():
