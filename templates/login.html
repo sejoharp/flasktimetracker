@@ -1,17 +1,12 @@
 {% extends "layout.html" %}
 {% block body %}
   <h2>Login</h2>
-  {% if form.errors %}
-    {% for error in form.errors %}
-       <dd>{{ error }}</dd>
-    {% endfor %} <br />
-  {% endif %}    
   <form action="{{ url_for('check_login') }}" method=post>
     {{ form.hidden_tag() }}
     <dl>
       <dt>{{ form.username.label }}</dt>
       <dd>{{ form.username }}</dd>
-            {% for error in form.errors.username %}<dd>{{ error }}</dd>{% endfor %}   
+            {% for error in form.username.errors %}<dd>{{ error }}</dd>{% endfor %}   
       <dt>{{ form.password.label }}</dt>
       <dd>{{ form.password }}</dd>
             {% for error in form.password.errors %}<dd>{{ error }}</dd>{% endfor %}
