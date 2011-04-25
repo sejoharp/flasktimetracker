@@ -1,15 +1,16 @@
 {% extends "layout.html" %}
 {% block body %}
   <h2>edit interval</h2>
-  <form action="/interval/save/{{ form.userid.data }}" method=post>
+  <form action="/interval/save" method=post>
     {{ form.hidden_tag() }}
     <dl>
       <dt>{{ form.start.label }}</dt>
       <dd>{{ form.start }}</dd>
-            {% for error in form.start.errors %}<dd>{{ error }}</dd>{% endfor %}   
+            {% for error in form.start.errors %}<dd>{{ error }}</dd>{% endfor %}
       <dt>{{ form.stop.label }}</dt>
       <dd>{{ form.stop }}</dd>
             {% for error in form.stop.errors %}<dd>{{ error }}</dd>{% endfor %}
+      <dd>{{ form.id }}</dd>
       <dt><dd><input type="submit" value="save" /></dd>
       <dt><dd><a href="{{ url_for('index') }}">Abbrechen</a></dd>
     </dl>

@@ -1,5 +1,34 @@
-{% extends "layout.html" %}
-{% block body %}
-  <h2>Index</h2>
-  Hello World!
+{% extends "layout.html" %} {% block body %}
+<h2>Index</h2>
+
+<table>
+	{% for interval in intervals %}
+	<tr>
+		<td style="width: 100px">start:</td>
+		<td style="width: 100px">stop:</td>
+		<td style="width: 65px">duration:</td>
+				<td ROWSPAN=2>
+			<form action="/interval/edit/{{interval.id}}">
+				<input type="image" src="{{ url_for('static', filename='edit.png') }}"  name="edit">
+			</form>
+		</td>
+	</tr>
+	<tr>
+		<td>{{interval.start|datetime}}</td>
+		<td>{{interval.stop|datetime}}</td>
+		<td>{{interval.duration()|timedelta}}
+	</tr>
+	<tr>
+		<td COLSPAN=3><hr /></td>
+	</tr>
+	{% endfor %}
+</table>
+<form method="POST" action="/interval/change">
+	{% if is_working %} <input type="submit" value="stop"
+		style="width: 100%; height: 40px"> {% else %} <input
+		type="submit" value="start" style="width: 100%; height: 40px">
+	{% endif %}
+</form>
+
+
 {% endblock %}

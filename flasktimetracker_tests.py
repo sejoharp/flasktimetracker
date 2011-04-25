@@ -1,9 +1,10 @@
 import unittest
 import flasktimetracker
 from flasktimetracker import Interval, User, login
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, date
 from flask import Flask, session
 from werkzeug import generate_password_hash, check_password_hash
+from pymongo.objectid import ObjectId
 
 class FlaskTimeTrackerTestCase(unittest.TestCase):
     
@@ -160,6 +161,95 @@ class FlaskTimeTrackerTestCase(unittest.TestCase):
         
     def test_save_interval(self):
         """ tests saving intervals """
-        self.assertTrue(False)
+        interval =  Interval.objects().first()
+        start = "2011-04-21 20:45:11"
+        stop = "2011-04-21 21:45:11"
+        
+        self.login_admin()
+        self.assertTrue(Interval.objects().all().count() == 2)
+        response = self.post('/interval/save', dict(start=start, stop=stop, id=interval.id))
+        self.assertTrue(Interval.objects().all().count() == 2)
+        self.assertTrue('interval edit successfully.' in response.data, response.data)
+
+    def test_save_interval2(self):
+        """ tests saving invalid intervals """
+        interval =  Interval.objects().first()
+        start = ""
+        stop = "2011-04-21 21:45:11"
+        
+        self.login_admin()
+        self.assertTrue(Interval.objects().all().count() == 2)
+        response = self.post('/interval/save', dict(start=start, stop=stop, id=interval.id))
+        self.assertTrue(Interval.objects().all().count() == 2)
+        self.assertTrue('does not match format &#39;%Y-%m-%d %H:%M:%S&' in response.data, response.data)        
+        
+    def test_save_interval3(self):
+        """ tests saving invalid intervals """
+        interval =  Interval.objects().first()
+        start = "2011-04-21 21:45:11"
+        stop = ""
+        
+        self.login_admin()
+        self.assertTrue(Interval.objects().all().count() == 2)
+        response = self.post('/interval/save', dict(start=start, stop=stop, id=interval.id))
+        self.assertTrue(Interval.objects().all().count() == 2)
+        self.assertTrue('interval edit successfully.' in response.data, response.data)  
+        
+    def test_get_last_interval(self):
+        user = User.objects().first()
+        interval = Interval.get_last_from_user(user.id)
+        self.assertEqual(interval.start, datetime(2011, 4, 4, 19, 56, 23, 709000) + timedelta(hours=2), str(interval.start) + " " + str(datetime(2011, 4, 4, 19, 56, 23, 709000) + timedelta(hours=2)))
+        self.assertEqual(interval.stop, datetime(2011, 4, 4, 19, 56, 23, 709000) + timedelta(hours=5), str(interval.stop) + " " + str(datetime(2011, 4, 4, 19, 56, 23, 709000) + timedelta(hours=5)))
+
+    def test_change_state(self):
+        """ simulates the start/stop working button 1x start and 1x stop """
+        self.login_admin()
+        user = User.objects().first()        
+        # precondition
+        self.assertTrue(Interval.objects().all().count() == 2)
+        response = self.post('/interval/change', dict())
+        self.assertTrue(Interval.objects().all().count() == 3)
+        interval = Interval.get_last_from_user(user.id)    
+        self.assertTrue(interval.stop is None)    
+        response = self.post('/interval/change', dict())
+        self.assertTrue(Interval.objects().all().count() == 3)
+        interval = Interval.get_last_from_user(user.id)    
+        self.assertTrue(interval.stop is not None)    
+        
+    def test_interval_get_from_today(self):
+        user = User.objects().first()
+        intervals = Interval.get_from_today(user.id)
+        self.assertTrue(len(intervals) == 0, len(intervals))
+
+        interval1 = Interval()
+        interval1.start = datetime.today() + timedelta(hours=1)
+        interval1.stop = datetime.today() + timedelta(hours=4)
+        interval1.userid = user.id
+        interval1.save()
+        
+        interval2 = Interval()
+        interval2.start = datetime.today() + timedelta(hours=6)
+        interval2.stop = datetime.today() + timedelta(hours=10)
+        interval2.userid = user.id
+        interval2.save()
+
+        interval3 = Interval()
+        interval3.start = datetime.today() + timedelta(hours=6)
+        interval3.stop = datetime.today() + timedelta(hours=10)
+        interval3.userid = ObjectId("4db5662094096910e3000036")
+        interval3.save()
+        
+        intervals = Interval.get_from_today(user.id)
+        self.assertTrue(len(intervals) == 2, len(intervals))
+          
+    def test_is_today(self):
+        today = datetime.today()
+        self.assertEqual(flasktimetracker.is_today(today), True)
+        tomorrow = datetime.today() + timedelta(days = 1)
+        self.assertEqual(flasktimetracker.is_today(tomorrow), False)        
+        
+    def test_timedelta_filter(self):
+        hour = timedelta(hours=1)
+        self.assertEqual("1:00:00", flasktimetracker.timedelta_filter(hour))
 if __name__ == '__main__':
     unittest.main()
